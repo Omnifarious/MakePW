@@ -27,6 +27,12 @@ def pbkdf2(key, salt, iters):
         salt = hasher.digest()
     return salt
 
+def bytes_as_int(bstr):
+    try:
+        return int.from_bytes(bstr, 'big')
+    except AttributeError:
+        return int(binascii.b2a_hex(bstr), 16)
+
 parser = argparse.ArgumentParser(description="Generate a site password from a "
                                  "master password and a site name.")
 parser.add_argument('--iterations', '-i',
@@ -38,7 +44,10 @@ parser.add_argument('--site', '-s',
                     metavar='SITE', type=str,
                     help="Last two components of site domain name "
                     "(aka slashdot.org).")
-
+parser.add_argument('--extra', '-e', action='store_true', default=False,
+                    help="Add just a few more bits of entropy to the result "
+                    "while still satisfying the requires of both upper and "
+                    "lowercase, a digit and a symbol.")
 args = parser.parse_args(sys.argv[1:])
 
 key = getpass.getpass().encode('utf-8')
@@ -55,5 +64,25 @@ if args.iterations == 0:
     result = hasher.digest()
 else:
     result = pbkdf2(key, sitename, args.iterations)
-result = binascii.b2a_base64(result).decode('ascii')
-print('0' + result[0:5] + '*' + result[5:10] + 'l')
+resultb64 = binascii.b2a_base64(result)[0:10]
+resultint = bytes_as_int(result)
+uppercase = ''.join(chr(x) for x in range(ord(b'A'), ord(b'Z'))).encode('ascii')
+lowercase = ''.join(chr(x) for x in range(ord(b'a'), ord(b'z'))).encode('ascii')
+if len(frozenset(uppercase) & frozenset(resultb64)) > 0:
+    letterchoices = lowercase
+else:
+    letterchoices = uppercase
+digits = ''.join(chr(x) for x in range(ord(b'0'), ord(b'9'))).encode('ascii')
+symbols = b'*/+'
+if not args.extra:
+    output = b'0' + resultb64[0:5] + b'*' + resultb64[5:10] + b'l'
+else:
+    letter = resultint % len(letterchoices)
+    resultint = resultint // len(letterchoices)
+    symbol = resultint % len(symbols)
+    resultint = resultint // len(symbols)
+    digit = resultint % len(digits)
+    output = digits[digit:digit+1] + resultb64[0:5] + \
+                          symbols[symbol:symbol+1] + resultb64[5:10] + \
+                          letterchoices[letter:letter+1]
+print(output.decode('ascii'))
