@@ -64,7 +64,7 @@ if args.iterations == 0:
     result = hasher.digest()
 else:
     result = pbkdf2(key, sitename, args.iterations)
-resultb64 = binascii.b2a_base64(result)[0:10]
+resultb64 = binascii.b2a_base64(result)
 resultint = bytes_as_int(result)
 uppercase = ''.join(chr(x) for x in range(ord(b'A'), ord(b'Z'))).encode('ascii')
 lowercase = ''.join(chr(x) for x in range(ord(b'a'), ord(b'z'))).encode('ascii')
@@ -82,7 +82,7 @@ else:
     symbol = resultint % len(symbols)
     resultint = resultint // len(symbols)
     digit = resultint % len(digits)
-    output = digits[digit:digit+1] + resultb64[0:5] + \
+    output = digits[digit:digit+1] + resultb64[0:6] + \
                           symbols[symbol:symbol+1] + resultb64[5:10] + \
                           letterchoices[letter:letter+1]
 print(output.decode('ascii'))
