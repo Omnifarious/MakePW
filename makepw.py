@@ -6,13 +6,47 @@ import hashlib
 import getpass
 import argparse
 import sys
+import struct
 
 try:
+    # Python 2
     readstr = raw_input
+    def binxor(a, b):
+        return "".join(chr(ord(x) ^ ord(y)) for x, y in zip(a, b))
 except NameError:
+    # Python 3
     readstr = input
+    def binxor(a, b):
+        return bytes(x ^ y for x, y in zip(a, b))
 
 def pbkdf2(key, salt, iters, hmod=hashlib.sha256):
+    """Computes the PKCS#5 v2.0 PBKDF2 function given a key, a salt
+    and a number of iterations, and an optional hashing module.  The
+    hashing module will be used as the hashing module for HMAC.
+
+    This function only computes one block worth of key material."""
+    try:
+        # Python 2
+        irange = xrange
+    except NameError:
+        # Python 3
+        irange = range
+    if iters <= 0:
+        raise RuntimeError("Too few iterations.")
+    hmac_con = hmac.HMAC
+    result = None
+    salt = salt + struct.pack("!L", 1)
+    for i in irange(0, iters):
+        hasher = hmac_con(key=key, digestmod=hmod)
+        hasher.update(salt)
+        salt = hasher.digest()
+        if result is None:
+            result = salt
+        else:
+            result = binxor(result, salt)
+    return result
+
+def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     try:
         irange = xrange
     except NameError:
@@ -48,6 +82,9 @@ def mk_arg_parser():
                         help="Add just a few more bits of entropy to the "
                         "result while still satisfying the requires of both "
                         "upper and lowercase, a digit and a symbol.")
+    parser.add_argument('--old', '-o', action='store_true', default=False,
+                        help="Use old non-PBKDF2 function for generating the "
+                        "password.")
     return parser
 
 def get_site(argsite):
@@ -101,6 +138,8 @@ def main(argv):
         hasher = hmac.HMAC(key=key, digestmod=hashlib.sha256)
         hasher.update(sitename)
         result = hasher.digest()
+    elif args.old:
+        result = not_pbkdf2(key, sitename, args.iterations)
     else:
         result = pbkdf2(key, sitename, args.iterations)
     if not args.extra:
