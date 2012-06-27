@@ -33,56 +33,82 @@ def bytes_as_int(bstr):
     except AttributeError:
         return int(binascii.b2a_hex(bstr), 16)
 
-parser = argparse.ArgumentParser(description="Generate a site password from a "
-                                 "master password and a site name.")
-parser.add_argument('--iterations', '-i',
-                    metavar='ITERS', type=int, default=200000,
-                    help="Number of hash iterations. Defaults to 200000. For "
-                    "the original behavior of a non-iterated hash, use an "
-                    "iteration count of 0.")
-parser.add_argument('--site', '-s',
-                    metavar='SITE', type=str,
-                    help="Last two components of site domain name "
-                    "(aka slashdot.org).")
-parser.add_argument('--extra', '-e', action='store_true', default=False,
-                    help="Add just a few more bits of entropy to the result "
-                    "while still satisfying the requires of both upper and "
-                    "lowercase, a digit and a symbol.")
-args = parser.parse_args(sys.argv[1:])
+def mk_arg_parser():
+    parser = argparse.ArgumentParser(description="Generate a site password "
+                                     "from a master password and a site name.")
+    parser.add_argument('--iterations', '-i',
+                        metavar='ITERS', type=int, default=200000,
+                        help="Number of hash iterations. Defaults to 200000. "
+                        "For the original behavior of a non-iterated hash, "
+                        "use an iteration count of 0.")
+    parser.add_argument('--site', '-s',
+                        metavar='SITE', type=str,
+                        help="Last two components of site domain name "
+                        "(aka slashdot.org).")
+    parser.add_argument('--extra', '-e', action='store_true', default=False,
+                        help="Add just a few more bits of entropy to the "
+                        "result while still satisfying the requires of both "
+                        "upper and lowercase, a digit and a symbol.")
+    return parser
 
-key = getpass.getpass().encode('utf-8')
+def get_site(argsite):
+    if argsite is not None:
+        sitename = argsite
+    else:
+        sitename = readstr("Last two components of site name "
+                           "(aka slashdot.org): ")
+    return sitename.encode('utf-8')
 
-if args.site is not None:
-    sitename = args.site
-else:
-    sitename = readstr("Last two components of site name (aka slashdot.org): ")
-sitename = sitename.encode('utf-8')
-
-if args.iterations == 0:
-    hasher = hmac.HMAC(key=key, digestmod=hashlib.sha256)
-    hasher.update(sitename)
-    result = hasher.digest()
-else:
-    result = pbkdf2(key, sitename, args.iterations)
-resultb64 = binascii.b2a_base64(result)
-resultint = bytes_as_int(result)
-uppercase = ''.join(chr(x) for x in range(ord(b'A'), ord(b'Z'))).encode('ascii')
-lowercase = ''.join(chr(x) for x in range(ord(b'a'), ord(b'z'))).encode('ascii')
-if len(frozenset(uppercase) & frozenset(resultb64[0:11])) > 0:
-    letterchoices = lowercase
-else:
-    letterchoices = uppercase
-digits = ''.join(chr(x) for x in range(ord(b'0'), ord(b'9'))).encode('ascii')
-symbols = b'*/+'
-if not args.extra:
+def gen_short_pw(hashval):
+    resultb64 = binascii.b2a_base64(hashval)
     output = b'0' + resultb64[0:5] + b'*' + resultb64[5:10] + b'l'
-else:
+    return output.decode('ascii')
+
+def gen_long_pw(hashval):
+    resultb64 = binascii.b2a_base64(hashval)
+    resultint = bytes_as_int(hashval)
+
+    uppercase = ''.join(chr(x) for x in \
+                            range(ord(b'A'), ord(b'Z'))).encode('ascii')
+    lowercase = ''.join(chr(x) for x in \
+                            range(ord(b'a'), ord(b'z'))).encode('ascii')
+    digits = ''.join(chr(x) for x \
+                         in range(ord(b'0'), ord(b'9'))).encode('ascii')
+    symbols = b'*/+'
+
+    size = 11
+    split = 6
+
+    if len(frozenset(uppercase) & frozenset(resultb64[0:size])) > 0:
+        letterchoices = lowercase
+    else:
+        letterchoices = uppercase
     letter = resultint % len(letterchoices)
     resultint = resultint // len(letterchoices)
     symbol = resultint % len(symbols)
     resultint = resultint // len(symbols)
     digit = resultint % len(digits)
-    output = digits[digit:digit+1] + resultb64[0:6] + \
-                          symbols[symbol:symbol+1] + resultb64[6:11] + \
-                          letterchoices[letter:letter+1]
-print(output.decode('ascii'))
+    output = digits[digit:digit+1] + resultb64[0:split] + \
+        symbols[symbol:symbol+1] + resultb64[split:size] + \
+        letterchoices[letter:letter+1]
+    return output.decode('ascii')
+
+def main(argv):
+    args = mk_arg_parser().parse_args(argv)
+    key = getpass.getpass().encode('utf-8')
+    sitename = get_site(args.site)
+
+    if args.iterations == 0:
+        hasher = hmac.HMAC(key=key, digestmod=hashlib.sha256)
+        hasher.update(sitename)
+        result = hasher.digest()
+    else:
+        result = pbkdf2(key, sitename, args.iterations)
+    if not args.extra:
+        result = gen_short_pw(result)
+    else:
+        result = gen_long_pw(result)
+    print(result)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
