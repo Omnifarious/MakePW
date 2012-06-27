@@ -12,14 +12,13 @@ try:
 except NameError:
     readstr = input
 
-def pbkdf2(key, salt, iters):
+def pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     try:
         irange = xrange
     except NameError:
         irange = range
     if iters <= 0:
         raise RuntimeError("Too few iterations.")
-    hmod = hashlib.sha256
     hmac_con = hmac.HMAC
     for i in irange(0, iters):
         hasher = hmac_con(key=key, digestmod=hmod)
