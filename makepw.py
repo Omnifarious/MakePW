@@ -4,7 +4,13 @@ import binascii
 import hmac
 import hashlib
 import getpass
-import argparse
+try:
+    import argparse
+except ImportError:
+    import optparse
+    argparse = optparse
+    optparse.ArgumentParser = optparse.OptionParser
+    optparse.ArgumentParser.add_argument = optparse.ArgumentParser.add_option
 import sys
 import struct
 
@@ -85,6 +91,12 @@ def mk_arg_parser():
     parser.add_argument('--old', '-o', action='store_true', default=False,
                         help="Use old non-PBKDF2 function for generating the "
                         "password.")
+    try:
+        old = argparse.OptionParser
+        old = parser.parse_args
+        parser.parse_args = lambda a: old(a)[0]
+    except AttributeError:
+        pass
     return parser
 
 def get_site(argsite):
