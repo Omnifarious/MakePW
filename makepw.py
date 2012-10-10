@@ -91,6 +91,10 @@ def mk_arg_parser():
     parser.add_argument('--old', '-o', action='store_true', default=False,
                         help="Use old non-PBKDF2 function for generating the "
                         "password.")
+    parser.add_argument('--no-check', '-n', action='store_true', default=False,
+                        help="Do not print out password for check_site site. "
+                        "This password can help you tell if you entered the "
+                        "wrong password.")
     try:
         old = argparse.OptionParser
         old = parser.parse_args
@@ -146,6 +150,9 @@ def main(argv):
     key = getpass.getpass().encode('utf-8')
     sitename = get_site(args.site)
 
+    if not args.no_check:
+        check_result = pbkdf2(key, b'check_site', 100)
+        print("check_site password is: %s" % gen_long_pw(check_result))
     if args.iterations == 0:
         hasher = hmac.HMAC(key=key, digestmod=hashlib.sha256)
         hasher.update(sitename)
