@@ -1,6 +1,8 @@
 A Python command line utility I put together so I can use a master
 password and have it generate a site specific password for each site
-that needs a password.
+that needs a password. I'm in the process of adding a Javascript
+implementation for use in a web browser and and an Android applet
+implementation.
 
 The passwords generated are carefully massaged to try to fit just
 about every site's password requirements and keep at least 60 bits of
@@ -10,3 +12,7 @@ It uses the PKCS#5 v2.0 PBKDF2 with a large (but configurable) number
 of iterations to make sure that even if an attacker manages to get the
 plaintext password for a given site, it will be practically impossible
 for them to reverse the hash and figure out the master password.
+
+It has a small bug in which it skips 'Z', 'z' and '9' for generating the
+uppercase, lowercase and digit characters. This bug should be faithfully
+replicated to all the various implementations.
