@@ -67,7 +67,7 @@ function gen_long_pw(hashbits) {
     var resultb64 = hashbits_to_b64(hashbits)
 
     var charchoices;
-    var digits = '012345678'; // Purposfully missing the 9.
+    var digits = '012345678'; // Purposefully missing the 9.
     var symbols = '*/+';
     var has_upper = 0;
 
