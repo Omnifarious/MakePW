@@ -1,0 +1,6 @@
+syntax:glob
+*~
+
+syntax:re
+^__pycache__$
+\.py[co]$
