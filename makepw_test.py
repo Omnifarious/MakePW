@@ -26,3 +26,52 @@ def test_hasher_results(hasher, expected):
     assert(dk != h)
     assert(dk != j)
     assert(dk != ds)
+
+@pytest.mark.parametrize("hasher,expected", hasher_results)
+def test_hasher_typechecks(hasher, expected):
+    # Ignore expected, this is parameterized just for the list of different
+    # hashing functions.
+    with pytest.raises(TypeError):
+        hasher(u'fred', b'barney', 500)
+    with pytest.raises(TypeError):
+        hasher(b'fred', u'barney', 500)
+    with pytest.raises(TypeError):
+        hasher(b'fred', b'barney', 'wilma')
+    with pytest.raises(RuntimeError):
+        hasher(b'fred', b'barney', 0)
+    with pytest.raises(RuntimeError):
+        hasher(b'fred', b'barney', -1)
+    hasher(b'fred', b'barney', 1)
+
+def test_short_pw_types():
+    with pytest.raises(TypeError):
+        makepw.gen_short_pw(u'a nice long string that should be big enough')
+    with pytest.raises(TypeError):
+        makepw.gen_short_pw(object())
+    # These need to go in later
+    #with pytest.raises(ValueError):
+    #    makepw.gen_short_pw(b'')
+    # These need to go in later
+    #with pytest.raises(ValueError):
+    #    makepw.gen_short_pw(b'1234567')
+    makepw.gen_short_pw(b'12345678')
+
+def test_short_pw_results():
+    assert(makepw.gen_short_pw(b'\0'*8) == '0AAAAA*AAAAAl')
+    assert(makepw.gen_short_pw(b'\xff'*8) == '0/////*/////l')
+    assert(makepw.gen_short_pw(b'\x01\x02\x03\x04\x05\x06\x07\x08') == '0AQIDB*AUGBwl')
+
+def test_long_pw_types():
+    with pytest.raises(TypeError):
+        makepw.gen_long_pw(u'a nice long string that should be big enough')
+    with pytest.raises(TypeError):
+        makepw.gen_long_pw(object())
+    with pytest.raises(TypeError):
+        makepw.gen_long_pw(5)
+    # These need to go in later
+    #with pytest.raises(ValueError):
+    #    makepw.gen_short_pw(b'')
+    # These need to go in later
+    #with pytest.raises(ValueError):
+    #    makepw.gen_short_pw(b'123456789')
+    makepw.gen_long_pw(b'1234567890')
