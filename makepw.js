@@ -1,3 +1,6 @@
+// Copyright 2018 by Eric M. Hopper
+// Licensed under the GNU Public License version 3 or any later version
+
 load('sjcl/sjcl.js')
 
 pbkdf2 = sjcl.misc.pbkdf2;

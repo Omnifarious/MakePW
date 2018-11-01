@@ -1,6 +1,14 @@
 import makepw
 import pytest
 
+# Copyright 2018 by Eric M. Hopper
+# Licensed under the GNU Public License version 3 or any later version
+
+__author__ = "Eric M. Hopper"
+__copyright__ = "Copyright 2018, Eric Hopper"
+__license__ = "GPLv3+"
+__version__ = "1.0"
+
 def test_has_main():
     assert(getattr(makepw, 'main'))
 

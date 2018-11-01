@@ -1,5 +1,18 @@
 #!/usr/bin/python
 
+# Copyright 2018 by Eric M. Hopper
+# Licensed under the GNU Public License version 3 or any later version
+
+"""A utility for generating passwords that pass most sites ridiculous password
+rules from a master password using repeated hashing with the site name as a
+salt.
+"""
+
+__author__ = "Eric M. Hopper"
+__copyright__ = "Copyright 2018, Eric Hopper"
+__license__ = "GPLv3+"
+__version__ = "1.0"
+
 import binascii
 import hmac
 import hashlib
