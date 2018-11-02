@@ -78,8 +78,24 @@ def test_long_pw_types():
         makepw.gen_long_pw(5)
     # These need to go in later
     #with pytest.raises(ValueError):
-    #    makepw.gen_short_pw(b'')
+    #    makepw.gen_long_pw(b'')
     # These need to go in later
     #with pytest.raises(ValueError):
-    #    makepw.gen_short_pw(b'123456789')
+    #    makepw.gen_long_pw(b'123456789')
     makepw.gen_long_pw(b'1234567890')
+
+long_pw_results = [
+    (b'\0'*10, '0AAAAAA*AAAAAa'),
+    (b'\xff'*10, '7//////*/////A'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xee ', '0//////*/////A'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xee\x07', '8//////+/////A'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xee\x06', '8////////////Y'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xee\x06', '8////////////Y'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xeb}', '0//////*/////A'),
+    (b'\xff\xff\xff\xff\xff\xff\xff\xff\xeb|', '8//////+/////Y'),
+    (b'\xd2)\x1d=T\x90\xed,\xf2\xa9', '50ikdPV/SQ7Szg')
+]
+
+@pytest.mark.parametrize("hash,expected", long_pw_results)
+def test_long_pw_results(hash, expected):
+    assert(makepw.gen_long_pw(hash) == expected)
