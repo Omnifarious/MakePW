@@ -57,7 +57,7 @@ def pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     except ValueError:
         raise TypeError("iters must be an integer.")
     if iters <= 0:
-        raise RuntimeError("Too few iterations.")
+        raise ValueError("Too few iterations.")
     hmac_con = hmac.HMAC
     result = None
     salt = salt + struct.pack("!L", 1)
@@ -83,7 +83,7 @@ def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     except ValueError:
         raise TypeError("iters must be an integer.")
     if iters <= 0:
-        raise RuntimeError("Too few iterations.")
+        raise ValueError("Too few iterations.")
     hmac_con = hmac.HMAC
     for i in irange(0, iters):
         hasher = hmac_con(key=key, digestmod=hmod)
