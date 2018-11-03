@@ -50,6 +50,12 @@ def pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     except NameError:
         # Python 3
         irange = range
+    key = as_bytes(key)
+    salt = as_bytes(salt)
+    try:
+        iters = int(iters)
+    except ValueError:
+        raise TypeError("iters must be an integer.")
     if iters <= 0:
         raise RuntimeError("Too few iterations.")
     hmac_con = hmac.HMAC
@@ -70,6 +76,12 @@ def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
         irange = xrange
     except NameError:
         irange = range
+    key = as_bytes(key)
+    salt = as_bytes(salt)
+    try:
+        iters = int(iters)
+    except ValueError:
+        raise TypeError("iters must be an integer.")
     if iters <= 0:
         raise RuntimeError("Too few iterations.")
     hmac_con = hmac.HMAC
@@ -79,11 +91,24 @@ def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
         salt = hasher.digest()
     return salt
 
+
 def bytes_as_int(bstr):
+    """Convert a bunch of bytes into an in both Python 2 and 3."""
     try:
         return int.from_bytes(bstr, 'big')
     except AttributeError:
         return int(binascii.b2a_hex(bstr), 16)
+
+
+def as_bytes(arg):
+    """Transform any iterable over bytes into bytes."""
+    try:
+        arg = bytes().join(arg)
+    except TypeError:
+        args = object()
+    if not isinstance(arg, bytes):
+        raise TypeError("Expected bytes, got something else.")
+    return arg
 
 def mk_arg_parser():
     parser = argparse.ArgumentParser(description="Generate a site password "
@@ -125,11 +150,13 @@ def get_site(argsite):
     return sitename.encode('utf-8')
 
 def gen_short_pw(hashval):
+    hashval = as_bytes(hashval)
     resultb64 = binascii.b2a_base64(hashval)
     output = b'0' + resultb64[0:5] + b'*' + resultb64[5:10] + b'l'
     return output.decode('ascii')
 
 def gen_long_pw(hashval):
+    hashval = as_bytes(hashval)
     resultb64 = binascii.b2a_base64(hashval)
     resultint = bytes_as_int(hashval)
 
