@@ -45,9 +45,9 @@ def test_hasher_typechecks(hasher, expected):
         hasher(b'fred', u'barney', 500)
     with pytest.raises(TypeError):
         hasher(b'fred', b'barney', 'wilma')
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         hasher(b'fred', b'barney', 0)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         hasher(b'fred', b'barney', -1)
     hasher(b'fred', b'barney', 1)
 
@@ -56,7 +56,6 @@ def test_short_pw_types():
         makepw.gen_short_pw(u'a nice long string that should be big enough')
     with pytest.raises(TypeError):
         makepw.gen_short_pw(object())
-    # These need to go in later
     #with pytest.raises(ValueError):
     #    makepw.gen_short_pw(b'')
     # These need to go in later
