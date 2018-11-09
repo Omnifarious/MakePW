@@ -1,3 +1,8 @@
+MakePW Secure Password Generator
+================================
+
+## Overview ##
+
 A Python command line utility I put together so I can use a master
 password and have it generate a site specific password for each site
 that needs a password. I'm in the process of adding a Javascript
@@ -7,6 +12,12 @@ implementation.
 The passwords generated are carefully massaged to try to fit just
 about every site's password requirements and keep at least 60 bits of
 entropy in every password.
+
+## How To Use It ##
+
+
+
+## How It Works ##
 
 It uses the PKCS#5 v2.0 PBKDF2 with a large (but configurable) number
 of iterations to make sure that even if an attacker manages to get the
