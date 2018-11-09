@@ -15,6 +15,8 @@ entropy in every password.
 
 ## How To Use It ##
 
+### Example Usage ###
+
 ``` sh
 $ ./makepw.py -e --site=google.com
 Password: 
@@ -32,7 +34,7 @@ Google.  You can specify whatever you want to for the site name.  It is
 mixed with your master password in an irreversible way to generate the
 site password.
 
-Here is the program's help message.
+### Program Help Message ###
 
 ```
 $ ./makepw.py --help
