@@ -13,6 +13,8 @@ The passwords generated are carefully massaged to try to fit just
 about every site's password requirements and keep at least 60 bits of
 entropy in every password.
 
+It should work both in Python 2.7 and any version of Python 3.
+
 ## How To Use It ##
 
 ### Example Usage ###
