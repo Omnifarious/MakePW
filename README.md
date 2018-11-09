@@ -67,6 +67,8 @@ of iterations to make sure that even if an attacker manages to get the
 plaintext password for a given site, it will be practically impossible
 for them to reverse the hash and figure out the master password.
 
+## Known Bugs ##
+
 It has a small bug in which it skips 'Z', 'z' and '9' for generating the
 uppercase, lowercase and digit characters. This bug should be faithfully
 replicated to all the various implementations.
