@@ -72,6 +72,12 @@ def pbkdf2(key, salt, iters, hmod=hashlib.sha256):
     return result
 
 def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
+    """An iterated hash function that doesn't follow the PBKDF2 standard.
+
+    This function has been replaced with a PBKDF2 version on the theory that
+    the people who created the standard knew what they were doing.
+
+    It's being kept around for old passwords generated using it."""
     try:
         irange = xrange
     except NameError:
@@ -93,7 +99,7 @@ def not_pbkdf2(key, salt, iters, hmod=hashlib.sha256):
 
 
 def bytes_as_int(bstr):
-    """Convert a bunch of bytes into an in both Python 2 and 3."""
+    """Convert a bunch of bytes into an int both Python 2 and 3."""
     try:
         return int.from_bytes(bstr, 'big')
     except AttributeError:
@@ -150,12 +156,16 @@ def get_site(argsite):
     return sitename.encode('utf-8')
 
 def gen_short_pw(hashval):
+    """Generate a 13 character password with 60 bits of entropy that probably
+    meets various silly password requirements."""
     hashval = as_bytes(hashval)
     resultb64 = binascii.b2a_base64(hashval)
     output = b'0' + resultb64[0:5] + b'*' + resultb64[5:10] + b'l'
     return output.decode('ascii')
 
 def gen_long_pw(hashval):
+    """Generate  a 14 character password with about 75 bits of entropy that
+    that almost certainly meets various silly password requirements."""
     hashval = as_bytes(hashval)
     resultb64 = binascii.b2a_base64(hashval)
     resultint = bytes_as_int(hashval)
