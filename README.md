@@ -19,7 +19,7 @@ It should work both in Python 2.7 and any version of Python 3.
 
 ### Example Usage ###
 
-``` sh
+```text
 $ ./makepw.py -e --site=google.com
 Password: 
 check_site hash is: 4Uwtzpj+3Jt0Jp
@@ -38,7 +38,7 @@ site password.
 
 ### Program Help Message ###
 
-```
+```text
 $ ./makepw.py --help
 usage: makepw.py [-h] [--iterations ITERS] [--site SITE] [--extra] [--old]
                  [--no-check]
