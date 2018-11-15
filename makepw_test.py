@@ -1,5 +1,8 @@
+import getpass
+
 import makepw
 import pytest
+import re
 
 # Copyright 2018 by Eric M. Hopper
 # Licensed under the GNU Public License version 3 or any later version
@@ -98,3 +101,50 @@ long_pw_results = [
 @pytest.mark.parametrize("hash,expected", long_pw_results)
 def test_long_pw_results(hash, expected):
     assert(makepw.gen_long_pw(hash) == expected)
+
+help_help_re = re.compile(r'\boptional\b.*(\s|,)--help\b',
+                          re.MULTILINE | re.DOTALL)
+help_site_re = re.compile(r'\boptional\b.*(\s|,)--site\b',
+                          re.MULTILINE | re.DOTALL)
+
+def test_help(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        makepw.main(['--help'])
+    assert exc_info.value.code == 0
+    savedoutput = capsys.readouterr()
+    assert savedoutput.err == ""
+    assert type(savedoutput.out) is str
+    assert help_help_re.search(savedoutput.out)
+    assert help_site_re.search(savedoutput.out)
+
+def test_password(capsys, monkeypatch):
+    class mock_passwords(object):
+        __slots__ = ('password_', 'callcount_')
+        def __init__(self, *args, **kargs):
+            super().__init__(*args, **kargs)
+            self.password_ = ''
+            self.callcount_ = 0
+        def __call__(self):
+            self.callcount_ += 1
+            return self.password_
+        @property
+        def password(self):
+            return self.password_
+        @password.setter
+        def password(self, value):
+            self.password_ = value
+        @property
+        def callcount(self):
+            return self.callcount_
+        def clear(self):
+            self.callcount_ = 0
+
+    mockpw = mock_passwords()
+    monkeypatch.setattr('getpass.getpass', mockpw)
+    mockpw.clear()
+    mockpw.password = "foo"
+    assert makepw.main(['--site=foo.com']) in (0, None)
+    assert mockpw.callcount == 1
+    savedoutput = capsys.readouterr()
+    assert savedoutput.err == ''
+    assert savedoutput.out == 'check_site hash is: 5ncvmJZ/gnehSx\n0bw2H4*8Bjaal\n'
