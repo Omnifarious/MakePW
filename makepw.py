@@ -3,6 +3,8 @@
 # Copyright 2018 by Eric M. Hopper
 # Licensed under the GNU Public License version 3 or any later version
 
+from __future__ import print_function
+
 """A utility for generating passwords that pass most sites ridiculous password
 rules from a master password using repeated hashing with the site name as a
 salt.
@@ -26,6 +28,8 @@ except ImportError:
     optparse.ArgumentParser.add_argument = optparse.ArgumentParser.add_option
 import sys
 import struct
+import os
+import urllib2
 
 try:
     # Python 2
@@ -135,6 +139,20 @@ def mk_arg_parser():
     parser.add_argument('--old', '-o', action='store_true', default=False,
                         help="Use old non-PBKDF2 function for generating the "
                         "password.")
+    parser.add_argument('--format', '-f',
+                        metavar='FORMAT', type=str, default=None,
+                        help="Output format of resulting password.  This will"
+                        " supercede the -eargument. Use --list-formats for a"
+                        " list of supported formats.")
+    parser.add_argument('--list-formats', '-l', action='store_true',
+                        help="Print out a list of supported formats,"
+                        " like --help, this short-circuits any other function.")
+    parser.add_argument('--random', '-r', action='store_true',
+                        help="Use the OS secure random number generation to"
+                        " creae a random password instead of asking for a"
+                        " master password. Useful for generating master"
+                        " passwords, or with the xkcd algorithm. Implies"
+                        " --no-check and ignores the site name and --iterations.")
     parser.add_argument('--no-check', '-n', action='store_true', default=False,
                         help="Do not print out hash for check_site site. "
                         "This hash can help you tell if you entered the "
@@ -195,12 +213,59 @@ def gen_long_pw(hashval):
         letterchoices[letter:letter+1]
     return output.decode('ascii')
 
-def main(argv):
-    args = mk_arg_parser().parse_args(argv)
-    key = getpass.getpass().encode('utf-8')
-    sitename = get_site(args.site)
 
-    if not args.no_check:
+def gen_xkcd_pw(numwords, randbytes):
+    lstfile = urllib2.urlopen('https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt')
+    wordlist = tuple(lstfile.read().split())
+    lstfile.close()
+
+    wordlist = tuple(w for w in wordlist if len(w) >= 3)
+    randbigint =  bytes_as_int(randbytes)
+    pw = ''
+    print(len(wordlist), file=sys.stderr)
+    for i in range(0, numwords):
+        pw += wordlist[randbigint % len(wordlist)].capitalize()
+        randbigint //= len(wordlist)
+    return pw
+
+
+def print_formats():
+    print("""List of password formats:
+   stupid_policy13 - Alphanumeric characters with at least 1 uppercase,
+                     1 lowercase, one number and one symbol.  Designed to satisfy
+                     most stupid password policies. About 60 bits of entropy.
+
+   stupid_policy14 - The same as above, buy slightly longer and varied for
+                     75 bits of entropy.
+
+   xkcd4           - Four random capitalized common English words of 5 letters
+                     or more, chosen from a list of 8813 for 52 bits of
+                     entropy. The word list is all words >= 3 letters from
+                     https://github.com/first20hours/google-10000-english . The
+                     name and idea comes from https://xkcd.com/936
+
+   xkcd5           - Same as previous, but with 5 words instead, for about 66
+                     bits of entropy.
+
+   xkcd6           - Same as xkcd4, but with 6 words. Has about 79 bits of
+                     entropy.
+
+                   * Note that xkcd passwords have more effective entropy than
+                     their 'official' entropy values because an attacker will
+                     have to try a lot of passwords where no part of the
+                     password comes from a dictionary.
+""")
+    pass
+
+# https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears-medium.txt
+
+def random_password_seed(args):
+    return os.urandom(32)
+
+def hashed_password_seed(args):
+    sitename = get_site(args.site)
+    key = getpass.getpass().encode('utf-8')
+    if not args.no_check or args.random:
         check_result = pbkdf2(key, b'check_site', 100)
         print("check_site hash is: %s" % gen_long_pw(check_result))
     if args.iterations == 0:
@@ -211,10 +276,41 @@ def main(argv):
         result = not_pbkdf2(key, sitename, args.iterations)
     else:
         result = pbkdf2(key, sitename, args.iterations)
-    if not args.extra:
-        result = gen_short_pw(result)
+    return result
+
+def format_pw(pwfmt, randbytes):
+    if pwfmt == 'stupid_policy13':
+        return gen_short_pw(randbytes)
+    elif pwfmt == 'stupid_policy14':
+        return gen_long_pw(randbytes)
+    elif pwfmt.startswith('xkcd'):
+        try:
+            numwords = int(pwfmt[4:])
+            if 4 <= numwords <= 6:
+                return gen_xkcd_pw(numwords, randbytes)
+        except ValueError:
+            pass
+    print("Unknown format '{}', try `--list-formats` to get a list of valid"
+          " formats.".format(pwfmt), file=sys.stderr)
+    raise SystemExit(2)
+
+def main(argv):
+    args = mk_arg_parser().parse_args(argv)
+    if args.list_formats:
+        print_formats()
+        return
+
+    if args.random:
+        result = random_password_seed(args)
     else:
+        result = hashed_password_seed(args)
+
+    if args.format:
+        result = format_pw(args.format, result)
+    elif args.extra:
         result = gen_long_pw(result)
+    else:
+        result = gen_short_pw(result)
     print(result)
 
 if __name__ == '__main__':

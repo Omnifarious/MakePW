@@ -117,6 +117,8 @@ def test_help(capsys):
     assert help_help_re.search(savedoutput.out)
     assert help_site_re.search(savedoutput.out)
 
+
+# noinspection SpellCheckingInspection
 def test_password(capsys, monkeypatch):
     class mock_passwords(object):
         __slots__ = ('password_', 'callcount_')
@@ -139,7 +141,7 @@ def test_password(capsys, monkeypatch):
         def clear(self):
             self.callcount_ = 0
 
-    mockpw = mock_passwords()
+    mockpw: mock_passwords = mock_passwords()
     monkeypatch.setattr('getpass.getpass', mockpw)
     mockpw.clear()
     mockpw.password = "foo"
