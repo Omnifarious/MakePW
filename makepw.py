@@ -222,7 +222,6 @@ def gen_xkcd_pw(numwords, randbytes):
     wordlist = tuple(w for w in wordlist if len(w) >= 3)
     randbigint =  bytes_as_int(randbytes)
     pw = ''
-    print(len(wordlist), file=sys.stderr)
     for i in range(0, numwords):
         pw += wordlist[randbigint % len(wordlist)].capitalize()
         randbigint //= len(wordlist)
