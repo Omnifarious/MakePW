@@ -130,21 +130,22 @@ def mk_arg_parser():
                         "use an iteration count of 0.")
     parser.add_argument('--site', '-s',
                         metavar='SITE', type=str,
-                        help="Last two components of site domain name "
-                        "(aka slashdot.org).")
+                        help="Unique site or account identifier, usually the"
+                        " last two components of site domain name (aka"
+                        " slashdot.org).")
     parser.add_argument('--extra', '-e', action='store_true', default=False,
-                        help="Add just a few more bits of entropy to the "
-                        "result while still satisfying the requires of both "
-                        "upper and lowercase, a digit and a symbol.")
+                        help="Backwards compatility - equivalent to "
+                        "--format stupid_policy14")
     parser.add_argument('--old', '-o', action='store_true', default=False,
                         help="Use old non-PBKDF2 function for generating the "
-                        "password.")
+                        "password.  Not relevant with -r")
     parser.add_argument('--format', '-f',
                         metavar='FORMAT', type=str, default=None,
-                        help="Output format of resulting password.  This will"
-                        " supercede the -eargument. Use --list-formats for a"
+                        help="Output format of resulting password.  Defaults"
+                        " to 'stupid_policy13'.  Use --list-formats for a"
                         " list of supported formats.")
     parser.add_argument('--list-formats', '-l', action='store_true',
+                        default="stupid_policy13",
                         help="Print out a list of supported formats,"
                         " like --help, this short-circuits any other function.")
     parser.add_argument('--random', '-r', action='store_true',
