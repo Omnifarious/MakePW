@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="makepw-omnifarious",
+    name="makepw",
     version="2.0",
     author="Eric Hopper",
     author_email="hopper@omnifarious.org",
