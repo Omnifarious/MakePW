@@ -29,7 +29,11 @@ except ImportError:
 import sys
 import struct
 import os
-import urllib2
+try:
+    from urllib2 import urlopen
+except ImportError:
+    # Assume Python3
+    from urllib.request import urlopen
 
 try:
     # Python 2
@@ -216,7 +220,7 @@ def gen_long_pw(hashval):
 
 
 def gen_xkcd_pw(numwords, randbytes):
-    lstfile = urllib2.urlopen('https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt')
+    lstfile = urlopen('https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt')
     wordlist = tuple(lstfile.read().split())
     lstfile.close()
 
@@ -314,7 +318,7 @@ def main(argv):
     print(result)
 
 def entrypoint():
-    main(sys.arv[1:])
+    main(sys.argv[1:])
 
 if __name__ == '__main__':
     entrypoint()
