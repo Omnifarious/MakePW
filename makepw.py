@@ -149,7 +149,7 @@ def mk_arg_parser():
                         " to 'stupid_policy13'.  Use --list-formats for a"
                         " list of supported formats.")
     parser.add_argument('--list-formats', '-l', action='store_true',
-                        default="stupid_policy13",
+                        default=False,
                         help="Print out a list of supported formats,"
                         " like --help, this short-circuits any other function.")
     parser.add_argument('--random', '-r', action='store_true',
@@ -312,9 +312,9 @@ def main(argv):
     if args.format:
         result = format_pw(args.format, result)
     elif args.extra:
-        result = gen_long_pw(result)
+        result = format_pw("stupid_policy14", result)
     else:
-        result = gen_short_pw(result)
+        result = format_pw("stupid_policy13", result)
     print(result)
 
 def entrypoint():
