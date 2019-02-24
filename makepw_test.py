@@ -113,7 +113,11 @@ def test_help(capsys):
     assert exc_info.value.code == 0
     savedoutput = capsys.readouterr()
     assert savedoutput.err == ""
-    assert type(savedoutput.out) is str
+    try:
+        output_type = (unicode, str)
+    except NameError:
+        output_type = str
+    assert isinstance(savedoutput.out, output_type)
     assert help_help_re.search(savedoutput.out)
     assert help_site_re.search(savedoutput.out)
 
@@ -123,7 +127,7 @@ def test_password(capsys, monkeypatch):
     class mock_passwords(object):
         __slots__ = ('password_', 'callcount_')
         def __init__(self, *args, **kargs):
-            super().__init__(*args, **kargs)
+            super(mock_passwords, self).__init__(*args, **kargs)
             self.password_ = ''
             self.callcount_ = 0
         def __call__(self):
@@ -141,7 +145,7 @@ def test_password(capsys, monkeypatch):
         def clear(self):
             self.callcount_ = 0
 
-    mockpw: mock_passwords = mock_passwords()
+    mockpw = mock_passwords()
     monkeypatch.setattr('getpass.getpass', mockpw)
     mockpw.clear()
     mockpw.password = "foo"
