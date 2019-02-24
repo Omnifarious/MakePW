@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://bitbucket.org/Omnifarious/MakePW",
     packages=setuptools.find_packages(),
+    py_modules=["makepw"],
     python_requires=">=2.7",
     entry_points={
         'console_scripts': [
