@@ -154,3 +154,18 @@ def test_password(capsys, monkeypatch):
     savedoutput = capsys.readouterr()
     assert savedoutput.err == ''
     assert savedoutput.out == 'check_site hash is: 5ncvmJZ/gnehSx\n0bw2H4*8Bjaal\n'
+
+
+def test_xkcd_pw(monkeypatch):
+    result = makepw.gen_xkcd_pw(4, b'\0'*32)
+    assert result == 'TheTheTheThe'
+    result = makepw.gen_xkcd_pw(5, b'\0'*32)
+    assert result == 'TheTheTheTheThe'
+    result = makepw.gen_xkcd_pw(6, b'\0'*32)
+    assert result == 'TheTheTheTheTheThe'
+    result = makepw.gen_xkcd_pw(4, b'\ff'*32)
+    assert result == 'StickersCopOutdoorRapids'
+    result = makepw.gen_xkcd_pw(5, b'\ff'*32)
+    assert result == 'StickersCopOutdoorRapidsSon'
+    result = makepw.gen_xkcd_pw(6, b'\ff'*32)
+    assert result == 'StickersCopOutdoorRapidsSonArgue'
