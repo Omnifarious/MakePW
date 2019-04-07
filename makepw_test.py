@@ -156,7 +156,7 @@ def test_password(capsys, monkeypatch):
     assert savedoutput.out == 'check_site hash is: 5ncvmJZ/gnehSx\n0bw2H4*8Bjaal\n'
 
 
-def test_xkcd_pw(monkeypatch):
+def test_xkcd_pw():
     result = makepw.gen_xkcd_pw(4, b'\0'*32)
     assert result == 'TheTheTheThe'
     result = makepw.gen_xkcd_pw(5, b'\0'*32)
