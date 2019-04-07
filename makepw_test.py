@@ -122,7 +122,6 @@ def test_help(capsys):
     assert help_site_re.search(savedoutput.out)
 
 
-# noinspection SpellCheckingInspection
 def test_password(capsys, monkeypatch):
     class mock_passwords(object):
         __slots__ = ('password_', 'callcount_')
