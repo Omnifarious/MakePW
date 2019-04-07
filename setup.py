@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="makepw",
-    version="2.0",
+    version="2.0.1",
     author="Eric Hopper",
     author_email="hopper@omnifarious.org",
     description="Generate unique, deterministic, and secure passwords.",
