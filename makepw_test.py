@@ -168,3 +168,26 @@ def test_xkcd_pw():
     assert result == 'StickersCopOutdoorRapidsSon'
     result = makepw.gen_xkcd_pw(6, b'\ff'*32)
     assert result == 'StickersCopOutdoorRapidsSonArgue'
+
+
+def test_word_data():
+    import bz2
+    import binascii
+    data = binascii.a2b_base64(makepw.word_data)
+    wl = bz2.decompress(data)
+
+
+def test_against_github_wordlist():
+    import bz2
+    import binascii
+    try:
+        from urllib2 import urlopen as urlopen_
+        import contextlib
+        urlopen = lambda url: contextlib.closing(urlopen_(url))
+    except ImportError:
+        # Assume Python3
+        from urllib.request import urlopen
+    data = binascii.a2b_base64(makepw.word_data)
+    wl = bz2.decompress(data)
+    with urlopen('https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt') as url_wl:
+        assert wl == url_wl.read()
