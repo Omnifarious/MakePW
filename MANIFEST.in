@@ -1,0 +1,2 @@
+exclude .hg*
+exclude makepw.js
