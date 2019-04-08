@@ -8,7 +8,7 @@ setuptools.setup(
     version="2.0.1",
     author="Eric Hopper",
     author_email="hopper@omnifarious.org",
-    description="Generate unique, deterministic, and secure passwords.",
+    description="Unique, secure passwords with no password database.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://bitbucket.org/Omnifarious/MakePW",
