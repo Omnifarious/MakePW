@@ -1,12 +1,11 @@
 language: python
 install:
-  - pip install --user pytest .
+  - pip install pytest . && echo $PATH && type -p pytest
 python:
   - "2.7"
   - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
 script:
-  pytest || pytest-3
+  pytest
