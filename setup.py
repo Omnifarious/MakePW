@@ -17,7 +17,7 @@ setuptools.setup(
     package_data={
         'makepw': ['wordlist.txt']
     },
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4",
     entry_points={
         'console_scripts': [
             "makepw = makepw:entrypoint",
