@@ -1,6 +1,6 @@
 language: python
 install:
-  - pip install $(python -c 'from __future__ import print_function; import sys; print("pytest<3.3") if (2,8) < sys.version_info < (3, 4) else print("pytest")') .
+  - pip install --upgrade $(python -c 'from __future__ import print_function; import sys; print("pytest<3.3") if (2,8) < sys.version_info < (3, 4) else print("pytest")') && pip install .
 python:
   - "2.7"
   - "3.3"
