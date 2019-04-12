@@ -1,6 +1,6 @@
 language: python
 install:
-  - pip install pytest . && echo $PATH && type -p pytest
+  - pip install --upgrade pytest . && echo $PATH && type -p pytest
 python:
   - "2.7"
   - "3.3"
