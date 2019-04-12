@@ -1,6 +1,6 @@
 language: python
 install:
-  - pip install pytest .
+  - pip install --user pytest .
 python:
   - "2.7"
   - "3.3"
@@ -9,4 +9,4 @@ python:
   - "3.6"
   - "3.7"
 script:
-  pytest
+  pytest || pytest-3
