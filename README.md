@@ -1,6 +1,8 @@
 MakePW Secure Password Generator
 ================================
 
+[![Build Status](https://travis-ci.com/Omnifarious/MakePW.svg?branch=master)](https://travis-ci.com/Omnifarious/MakePW)
+
 ## Overview ##
 
 A Python command line utility I put together so I can use a master
